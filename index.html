@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lottery Generator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #ff7eb9, #ff65a3, #7a77ff);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-top: 30px;
+      font-size: 2.8rem;
+      letter-spacing: 2px;
+      color: #fff;
+      text-shadow: 2px 2px 12px rgba(0,0,0,0.4);
+    }
+
+    .display {
+      margin: 40px 0;
+    }
+
+    .lottery-box {
+      display: inline-block;
+      margin: 15px;
+      padding: 25px;
+      border: 3px solid #fff;
+      border-radius: 15px;
+      font-size: 30px;
+      width: 80px;
+      height: 80px;
+      line-height: 80px;
+      font-weight: bold;
+      background: #ffb3d9;
+      color: #5e2a84;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease-in-out, background 0.3s;
+    }
+
+    .lottery-box:hover {
+      transform: scale(1.15);
+      background: #ff85c1;
+    }
+
+    .message {
+      font-size: 24px;
+      margin: 20px 0;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .control {
+      margin: 25px 0;
+    }
+
+    button {
+      margin: 0 12px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #fff;
+      color: #c9187d;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.25s ease-in-out;
+    }
+
+    button:hover {
+      background: #ffd6eb;
+      transform: translateY(-2px);
+    }
+
+    button:disabled {
+      background: #eee;
+      color: #aaa;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .history {
+      margin-top: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      border-radius: 15px;
+      width: 60%;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .history h2 {
+      color: #fff;
+      margin-bottom: 15px;
+      font-size: 22px;
+      text-shadow: 1px 1px 6px rgba(0,0,0,0.3);
+    }
+
+    #history {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #history li {
+      padding: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+    }
+
+    #history li:first-child {
+      font-weight: bold;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="lotterycontainer">
+      <h1>🎀 Lottery 🎀</h1>
+    </section>
+
+    <div class="display">
+      <div class="lottery-box" id="box-1"> ? </div>
+      <div class="lottery-box" id="box-2"> ? </div>
+      <div class="lottery-box" id="box-3"> ? </div>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <div class="control">
+      <button id="start">Start Lottery</button>
+      <button id="reset">Reset</button>
+    </div>
+
+    <section class="history">
+      <h2>Previous Results</h2>
+      <ul id="history"></ul>
+    </section>
+    
+    
+     <section class="credits">
+      <h4> Made by Rudeyy 🎀</h4>
+    </section>
+  </main>
+
+  <script>
+    function getRandomNumber() {
+      return Math.floor(Math.random() * 5) + 1;
+    }
+
+    const boxes = [
+      document.getElementById('box-1'),
+      document.getElementById('box-2'),
+      document.getElementById('box-3'),
+    ];
+
+    const startButton = document.getElementById('start');
+    const resetButton = document.getElementById('reset');
+    const message = document.getElementById('message');
+    const history = document.getElementById('history');
+
+    let resultsHistory = [];
+
+    function toggleButtons(disabled) {
+      startButton.disabled = disabled;
+      resetButton.disabled = disabled;
+    }
+
+    function showResult(result) {
+      message.textContent = result ? ' You Win <3' : ' You Lose :(';
+      message.style.color = result ? '#26076e' : '#26076e';
+    }
+
+    function updateHistory(result) {
+      resultsHistory.unshift(result ? 'Win' : 'Lose');
+      const listItem = document.createElement('li');
+      listItem.textContent = resultsHistory[0];
+      history.prepend(listItem);
+    }
+
+    function resetGame() {
+      boxes.forEach((box) => {
+        box.textContent = '?';
+      });
+      message.textContent = '';
+    }
+
+    async function runLottery() {
+      toggleButtons(true);
+      let values = [];
+
+      for (let i = 0; i < boxes.length; i++) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            const num = getRandomNumber();
+            boxes[i].textContent = num;
+            values.push(num);
+            resolve();
+          }, 500 + i * 500);
+        });
+      }
+
+      const isWin = values.every((val) => val === values[0]);
+      showResult(isWin);
+      updateHistory(isWin);
+      toggleButtons(false);
+    }
+
+    startButton.addEventListener('click', () => {
+      resetGame();
+      runLottery();
+    });
+
+    resetButton.addEventListener('click', () => {
+      resetGame();
+    });
+  </script>
+</body>
+</html>
